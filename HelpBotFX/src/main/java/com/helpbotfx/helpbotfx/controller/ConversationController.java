@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.helpbotfx.helpbotfx.Service.ChatbotClient;
+
 /**
  * @author
  **/
@@ -36,6 +38,7 @@ public class ConversationController implements Initializable {
     User user = Session.getUtilisateurConnecte();
     final ConversationDAO conversationDAO = new ConversationDAO();
     final MessageDAO messageDAO = new MessageDAO();
+    private final ChatbotClient chatbotClient = new ChatbotClient();
 
 
 
@@ -94,36 +97,35 @@ public class ConversationController implements Initializable {
     private Button noveauChat;
     @FXML
     private Text exp;
+
     @FXML
     private void newQuestion() throws IOException {
         String question = newQuestion.getText().trim();
-        if(question.isEmpty()){
-            exp.setText("poser question!");
-        }else {
-//            ajouter nouveau message dans cette conversation
-                String localDateTime = LocalDateTime.now().toString();
-                Message message = new Message(newQuestion.getText(), AuteurMessage.USER.toString(), localDateTime, conversationActuelle);
-                if (messageDAO.ajouterMessage(message)){
-                    conversationActuelle.ajouterMessage(message);
+        if (question.isEmpty()) {
+            exp.setText("Posez une question !");
+        } else {
+            String localDateTime = LocalDateTime.now().toString();
+            Message userMsg = new Message(question, AuteurMessage.USER.toString(), localDateTime, conversationActuelle);
+            if (messageDAO.ajouterMessage(userMsg)) {
+                conversationActuelle.ajouterMessage(userMsg);
+                afficherMessages(conversationActuelle);
+                newQuestion.clear();
+
+                // ✅ Appel REST au chatbot distant (Spring AI)
+                String reponse = chatbotClient.askChatbot(question);
+
+                Message botMsg = new Message(reponse, AuteurMessage.CHATBOT.toString(), LocalDateTime.now().toString(), conversationActuelle);
+                if (messageDAO.ajouterMessage(botMsg)) {
+                    conversationActuelle.ajouterMessage(botMsg);
                     afficherMessages(conversationActuelle);
-                    newQuestion.clear();
-                    FaqDAO faqDAO = new FaqDAO();
-                    Optional<Faq> faqTrouvee = faqDAO.rechercherParPertinence(question);
-                    String reponse = faqTrouvee
-                            .map(Faq::getReponse)
-                            .orElse("Je suis désolé, je n'ai pas trouvé de solution à votre problème pour l’instant.");
-                    Message botMsg = new Message(reponse, AuteurMessage.CHATBOT.toString(), localDateTime, conversationActuelle);
-                    if(messageDAO.ajouterMessage(botMsg)){
-                        conversationActuelle.ajouterMessage(message);
-                        afficherMessages(conversationActuelle);
-                        newQuestion.clear();
-                    }
-                    exp.setText("");
-                } else {
-                    exp.setText("Message n'ai pas ajoutée sur conversation !");
                 }
+                exp.setText("");
+            } else {
+                exp.setText("Le message n’a pas pu être ajouté !");
+            }
         }
     }
+
     @FXML void nouveauChat() throws IOException {
         Main m = new Main();
         m.changeScene("/com/helpbotfx/new-conversation.fxml");
