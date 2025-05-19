@@ -17,10 +17,11 @@ public class UserDAO {
 
             pstmt.setString(1, nom);
             pstmt.setString(2, password);
-
             ResultSet rs = pstmt.executeQuery();
 
+            System.out.println("Tentative de connexion avec : nom=" + nom + ", password=" + password);
             if (rs.next()) {
+                System.out.println("utilisateur trouver");
                 // Utilisateur trouvé, retourner l'objet
                 return new User(
                         rs.getInt("id"),
@@ -28,6 +29,7 @@ public class UserDAO {
                         rs.getString("email"),
                         rs.getString("password")
                 );
+
             }
 
         } catch (SQLException e) {
@@ -47,7 +49,7 @@ public class UserDAO {
             pstmt.setString(1, utilisateur.getNom());
             pstmt.setString(2, utilisateur.getEmail());
             pstmt.setString(3, utilisateur.getPassword());
-
+            System.out.println("nom : "+utilisateur.getNom()+"email : "+utilisateur.getEmail()+"password : "+utilisateur.getPassword());
             pstmt.executeUpdate();
             System.out.println("✅ Utilisateur ajouté !");
         } catch (SQLException e) {

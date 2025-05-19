@@ -4,6 +4,7 @@ module com.helpbotfx.helpbotfx {
     requires java.sql;
     requires java.desktop;
     requires jdk.compiler;
+    requires java.net.http;
 
 
     opens com.helpbotfx.helpbotfx to javafx.fxml;
