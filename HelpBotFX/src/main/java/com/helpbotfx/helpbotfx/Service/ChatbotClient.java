@@ -14,7 +14,7 @@ public class ChatbotClient {
         try {
             String encodedQuestion = URLEncoder.encode(question, StandardCharsets.UTF_8);
             String fullUrl = BASE_URL + "?question=" + encodedQuestion; //assurer l'url complet en ajoutant la question
-
+            System.out.println("URL envoyée : " + fullUrl); // Log de l'URL complète
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(fullUrl))
@@ -22,6 +22,7 @@ public class ChatbotClient {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());//envoie d'une requete Get aux api modele et recuperation de la reponse
+            System.out.println("Réponse du chatbot : " + response.body()); // Log de la réponse
             return response.body();
         } catch (Exception e) {
             e.printStackTrace();

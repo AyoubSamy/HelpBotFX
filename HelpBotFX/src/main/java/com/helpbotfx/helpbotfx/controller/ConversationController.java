@@ -17,6 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
+import javafx.application.Platform;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 import com.helpbotfx.helpbotfx.Service.ChatbotClient;
 
@@ -85,8 +87,10 @@ public class ConversationController implements Initializable {
             items.add(line);
         }
         currectConversation.setItems(items);
+        System.out.println("Messages chargés pour la conversation : " + conversationActuelle.getId());
+        System.out.println("avant le lançement de la methode New Question");   
     }
-
+  
     @FXML
     private ListView<Conversation> historique;
     @FXML
@@ -97,32 +101,61 @@ public class ConversationController implements Initializable {
     private Button noveauChat;
     @FXML
     private Text exp;
-
+    
     @FXML
-    private void newQuestion() throws IOException {
-        String question = newQuestion.getText().trim();
-        if (question.isEmpty()) {
-            exp.setText("Posez une question !");
-        } else {
+    private void handleNewQuestion() throws IOException {
+        try {
+            System.out.println("Méthode newQuestion appelée.");
+            String question = newQuestion.getText().trim();
+            if (question.isEmpty()) {
+                exp.setText("Posez une question !");
+                return;
+            }
+
+            System.out.println("Question posée : " + question);
             String localDateTime = LocalDateTime.now().toString();
             Message userMsg = new Message(question, AuteurMessage.USER.toString(), localDateTime, conversationActuelle);
+            
             if (messageDAO.ajouterMessage(userMsg)) {
                 conversationActuelle.ajouterMessage(userMsg);
                 afficherMessages(conversationActuelle);
                 newQuestion.clear();
 
-                // ✅ Appel REST au chatbot distant (Spring AI)
-                String reponse = chatbotClient.askChatbot(question);
-
-                Message botMsg = new Message(reponse, AuteurMessage.CHATBOT.toString(), LocalDateTime.now().toString(), conversationActuelle);
-                if (messageDAO.ajouterMessage(botMsg)) {
-                    conversationActuelle.ajouterMessage(botMsg);
-                    afficherMessages(conversationActuelle);
-                }
-                exp.setText("");
+                // Appel REST au chatbot dans un thread séparé
+                CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return chatbotClient.askChatbot(question);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Platform.runLater(() -> exp.setText("Erreur de communication avec le chatbot"));
+                        return null;
+                    }
+                }).thenAccept(reponse -> {
+                    if (reponse != null) {
+                        Platform.runLater(() -> {
+                            try {
+                                Message botMsg = new Message(reponse, AuteurMessage.CHATBOT.toString(), 
+                                    LocalDateTime.now().toString(), conversationActuelle);
+                                
+                                if (messageDAO.ajouterMessage(botMsg)) {
+                                    conversationActuelle.ajouterMessage(botMsg);
+                                    afficherMessages(conversationActuelle);
+                                } else {
+                                    exp.setText("Le message du chatbot n'a pas pu être ajouté !");
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                exp.setText("Erreur lors du traitement de la réponse du chatbot");
+                            }
+                        });
+                    }
+                });
             } else {
-                exp.setText("Le message n’a pas pu être ajouté !");
+                exp.setText("Le message utilisateur n'a pas pu être ajouté !");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            exp.setText("Une erreur est survenue");
         }
     }
 

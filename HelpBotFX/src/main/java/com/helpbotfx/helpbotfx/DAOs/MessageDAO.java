@@ -27,6 +27,7 @@ public class MessageDAO {
                 if (rs.next()) {
                     msg.setId(rs.getInt(1));
                 }
+                System.out.println("Ajout du message : " + msg.getContenu());
                 return true;
             }
         } catch (SQLException e) {

@@ -31,7 +31,7 @@
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <TextField fx:id="newQuestion" layoutX="38.0" layoutY="333.0" onAction="#newQuestion" prefHeight="31.0" prefWidth="331.0" promptText="poser une question !" style="-fx-background-color: #d2d2d2;" />
+            <TextField fx:id="newQuestion" layoutX="38.0" layoutY="333.0" onAction="#handleNewQuestion" prefHeight="31.0" prefWidth="331.0" promptText="poser une question !" style="-fx-background-color: #d2d2d2;" />
             <ImageView fitHeight="40.0" fitWidth="42.0" layoutX="-6.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/bot.jpg" />
