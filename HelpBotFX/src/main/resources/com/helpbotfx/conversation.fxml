@@ -38,7 +38,18 @@
                </image>
             </ImageView>
             <ListView fx:id="currectConversation" layoutX="38.0" layoutY="40.0" prefHeight="283.0" prefWidth="331.0" />
-            <Text fx:id="exp" fill="RED" layoutX="37.0" layoutY="381.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="333.98304176330566" />
+            <Text fx:id="exp" fill="RED" layoutX="97.0" layoutY="388.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="271.3162784576416" />
+            <Button fx:id="signaler" layoutX="302.0" layoutY="3.0" mnemonicParsing="false" onAction="#signaler" prefHeight="33.0" prefWidth="67.0" style="-fx-background-color: red;" text="Signaler" textFill="WHITE" />
+            <ImageView fx:id="like" onMouseClicked="#handleLike" fitHeight="22.0" fitWidth="24.0" layoutX="38.0" layoutY="373.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/like.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="deslike" onMouseClicked="#handleDeslike" fitHeight="22.0" fitWidth="24.0" layoutX="65.0" layoutY="373.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/deslike.png" />
+               </image>
+            </ImageView>
          </children>
       </AnchorPane>
    </center>

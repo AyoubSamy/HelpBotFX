@@ -16,6 +16,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 
 import java.awt.event.ActionEvent;
@@ -82,6 +84,7 @@ public class ConversationController implements Initializable {
         historique.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldConv, selectedConv) -> {
                     if (selectedConv != null) {
+                        exp.setText("");
                         SessionConversation.setConversationActuelle(selectedConv);
                         conversationActuelle = SessionConversation.getConversationActuelle();
                         afficherMessages(conversationActuelle);
@@ -152,5 +155,21 @@ public class ConversationController implements Initializable {
     @FXML void nouveauChat() throws IOException {
         Main m = new Main();
         m.changeScene("/com/helpbotfx/new-conversation.fxml");
+    }
+
+    @FXML private ImageView like;
+    @FXML private ImageView deslike;
+    @FXML private Button signaler;
+    @FXML
+    public void handleLike(MouseEvent event) {
+        exp.setText("Merci pour votre FeedBack");
+    }
+    @FXML
+    public void handleDeslike(MouseEvent event) {
+        exp.setText("Merci pour votre FeedBack");
+    }
+    @FXML
+    public void signaler(){
+        exp.setText("Un agent vous contactera bientôt pour le suivi.");
     }
 }
