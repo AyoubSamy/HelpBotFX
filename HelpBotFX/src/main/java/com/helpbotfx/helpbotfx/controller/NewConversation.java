@@ -2,6 +2,7 @@ package com.helpbotfx.helpbotfx.controller;
 
 import com.helpbotfx.Main;
 import com.helpbotfx.helpbotfx.DAOs.ConversationDAO;
+import com.helpbotfx.helpbotfx.Service.ChatbotClient;
 import com.helpbotfx.helpbotfx.database.SessionConversation;
 import com.helpbotfx.helpbotfx.model.Conversation;
 import com.helpbotfx.helpbotfx.DAOs.MessageDAO;
@@ -30,6 +31,7 @@ import java.util.ResourceBundle;
 public class NewConversation implements Initializable {
     Main m = new Main();
     User user = Session.getUtilisateurConnecte();
+    private final ChatbotClient chatbotClient = new ChatbotClient();
     final ConversationDAO conversationDAO = new ConversationDAO();
     final MessageDAO messageDAO = new MessageDAO();
     @Override
@@ -74,6 +76,15 @@ public class NewConversation implements Initializable {
                 Message message = new Message(newQuestion.getText(), AuteurMessage.USER.toString(), localDateTime, conversation);
                 if (messageDAO.ajouterMessage(message)){
                     conversation.ajouterMessage(message);
+
+                    // ✅ Appel REST au chatbot distant (Spring AI)
+                    String question = newQuestion.getText().trim();
+                    String reponse = chatbotClient.askChatbot(question);
+
+                    Message botMsg = new Message(reponse, AuteurMessage.CHATBOT.toString(), LocalDateTime.now().toString(), conversation);
+                    if (messageDAO.ajouterMessage(botMsg)) {
+                        conversation.ajouterMessage(botMsg);
+                    }
                     user.ajouterConversation(conversation);
                     SessionConversation.setConversationActuelle(conversation);
                     m.changeScene("/com/helpbotfx/conversation.fxml");

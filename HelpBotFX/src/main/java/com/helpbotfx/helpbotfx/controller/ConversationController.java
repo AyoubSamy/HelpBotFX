@@ -44,6 +44,29 @@ public class ConversationController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        currectConversation.setCellFactory(listView -> new javafx.scene.control.ListCell<>() {
+            private final javafx.scene.control.Label label = new javafx.scene.control.Label();
+            {
+                label.setWrapText(true);
+                label.setStyle("-fx-padding: 5px;"); // optionnel : ajoute du padding
+                // Option 1 : largeur fixe légèrement inférieure à celle du ListView
+                label.setMaxWidth(310);
+                // Option 2 : dynamique (mieux si tu redimensionnes)
+                // label.maxWidthProperty().bind(currectConversation.widthProperty().subtract(20));
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    label.setText(item);
+                    setGraphic(label);
+                }
+            }
+        });
+
         List<Conversation> conversations = conversationDAO.getByUtilisateur(user);
         afficherMessages(conversationActuelle);
         currectConversation.getItems();
